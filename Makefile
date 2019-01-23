@@ -26,7 +26,9 @@ all:		$(NAME)
 $(NAME):	$(OBJDEV)
 		$(CC) -c $(CFLAGS) -fpic $(SRC)
 		$(CC) -shared -o $(NAME) $(OBJ)
-		$(CC) $(CFLAGS) $(SRCDEV) -o $(NAMEDEV) -ldl
+		# $(CC) $(CFLAGS) $(SRCDEV) -o $(NAMEDEV) -ldl
+		$(CC) $(CFLAGS) $(SRCDEV) -o $(NAMEDEV) -L./ -lmy_malloc
+		# $(CC) $(CFLAGS) $(SRCDEV) -o $(NAMEDEV)
 
 clean:
 		rm -f $(OBJ)
