@@ -23,11 +23,9 @@ NAMEDEV	=	malloc
 
 all:		$(NAME)
 
-$(NAME):
+$(NAME):	$(OBJDEV)
 		$(CC) -c $(CFLAGS) -fpic $(SRC)
 		$(CC) -shared -o $(NAME) $(OBJ)
-
-dev:		$(OBJDEV)
 		$(CC) $(CFLAGS) $(SRCDEV) -o $(NAMEDEV) -ldl
 
 clean:

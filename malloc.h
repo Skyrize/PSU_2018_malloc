@@ -8,5 +8,9 @@
 #ifndef MALLOC_H_
 	#define MALLOC_H_
 
+typedef struct info_s {
+	char	is_free;
+	size_t	size;
+} __attribute__((packed)) info_t;
 
 #endif /* !MALLOC_H_ */
