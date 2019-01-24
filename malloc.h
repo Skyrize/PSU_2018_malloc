@@ -13,4 +13,6 @@ typedef struct info_s {
 	size_t	size;
 } __attribute__((packed)) info_t;
 
+void	show_alloc_mem();
+
 #endif /* !MALLOC_H_ */
