@@ -15,8 +15,6 @@ const int info_size = sizeof(info_t);
 
 void    *head_ptr = NULL;
 
-void    *end_ptr = NULL;
-
 void    *create_page()
 {
     void *ptr = sbrk(getpagesize());
@@ -42,44 +40,31 @@ void    *browse_alloc(size_t size)
     void *current = head_ptr;
     int block_size = 0;
 
-    // printf("%p\n", current);
-    // printf("%d\n", ((info_t *)current)->is_free);
     while (((info_t *)current)->is_free != 2) {
-        // printf("%d size: %lu --> %lu\n", ((info_t *)current)->is_free, size, ((info_t *)current)->size);
         if (((info_t *)current)->is_free == 1 &&
         size <= ((info_t *)current)->size) {
             // printf("OCCUP FREE\n");
             ((info_t *)current)->is_free = 0;
             return (current + info_size);
         }
-        // printf("%p\n", current);
         current += info_size + ((info_t *)current)->size;
-        // printf("%p\n", current);
-        // printf("NOT NULL\n");
-        // printf("%d\n", ((info_t *)current)->is_free);
     }
-    // printf("DECALE FINAL: %lu\n", current - head_ptr);
     while (size + info_size >= ((info_t *)current)->size) {
         if (!create_page())
             return (NULL);
         ((info_t *)current)->size += getpagesize();
-        // printf("%lu\n", ((info_t *)current)->size);
     }
     create_info_block(&current, size);
-    // printf("%p\n", current);
     current += info_size + ((info_t *)current)->size;
-    // printf("%p\n", current);
     block_size = ((getpagesize() - ((current - head_ptr) % getpagesize()) - info_size) + getpagesize()) % getpagesize();
     create_info_block(&current, block_size == 0 ? getpagesize() : block_size);
     ((info_t *)current)->is_free = 2;
-    end_ptr = current;
-    // printf("%d\n", ((info_t *)current)->is_free);
-    // printf("%p\n", current);
     return (current - size);
 }
 
 void    *malloc(size_t size)
 {
+    // write(1, "MALLOC\n", 7);
     if (!head_ptr) {
         if (!(head_ptr = create_page()))
             return (NULL);
@@ -91,11 +76,27 @@ void    *malloc(size_t size)
 
 void    free(void *ptr)
 {
-    printf("FREE\n");
+    // write(1, "FREE\n", 5);
+    // printf("FREE\n");
     info_t *info = ptr - info_size;
     info->is_free = 1;
     
 }
+
+// void    *realloc(void *ptr, size_t size)
+// {
+//     void *ptr2 = malloc(size);
+//     info_t *ptr_info = ptr - info_size;
+
+//     for (size_t i = 0; i < ptr_info->size && i < size; i++) {
+//         write(1, "I\n", 2);
+//         ((char *)ptr2)[i] = ((char *)ptr)[i];
+//     }
+//     // printf("%lu\n", ptr_info->size);
+//     // write(1, "REALLOC\n", 8);
+//     free(ptr);
+//     return (ptr2);
+// }
 
 void    show_alloc_mem()
 {
