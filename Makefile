@@ -7,7 +7,9 @@
 
 CC		=	gcc
 
-CFLAGS	=	-W -Wall -Wextra -g3
+CFLAGS	=	-W -Wall -Wextra -c -fpic -g3
+
+CFLAGSDEV	= -W -Wall -Wextra -g3
 
 SRC		=	malloc.c	\
 
@@ -23,12 +25,10 @@ NAMEDEV	=	malloc
 
 all:		$(NAME)
 
-$(NAME):	$(OBJDEV)
-		$(CC) -c $(CFLAGS) -fpic $(SRC)
+$(NAME):	$(OBJ) $(OBJDEV)
 		$(CC) -shared -o $(NAME) $(OBJ)
-		# $(CC) $(CFLAGS) $(SRCDEV) -o $(NAMEDEV) -ldl
+		# $(CC) $(CFLAGSDEV) $(OBJDEV) -o $(NAMEDEV) -ldl
 		$(CC) $(CFLAGS) $(SRCDEV) -o $(NAMEDEV) -L./ -lmy_malloc
-		# $(CC) $(CFLAGS) $(SRCDEV) -o $(NAMEDEV)
 
 clean:
 		rm -f $(OBJ)

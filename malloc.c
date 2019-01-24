@@ -11,7 +11,8 @@
 #include <dlfcn.h>
 #include "malloc.h"
 
-const int info_size = 9;
+const int info_size = sizeof(info_t);
+
 
 void    *head_ptr;
 
@@ -21,7 +22,7 @@ void    *create_page()
 
     if (!ptr)
         return (NULL);
-    // printf("CREATE PAGE\n");
+    printf("CREATE PAGE\n");
     return (ptr);
 }
 
@@ -31,7 +32,8 @@ void    create_info_block(void * *ptr, size_t size)
 
     info_block->is_free = 0; //0 = false, 1 = true, 2 = end;
     info_block->size = size;
-    // printf("CREATE BLOCK OF %lu bytes\n", size);
+    printf("%p --> %d %lu\n", info_block, info_block->is_free, info_block->size);
+    printf("CREATE BLOCK OF %lu bytes\n", size);
 }
 
 void    *browse_alloc(size_t size)
@@ -39,17 +41,19 @@ void    *browse_alloc(size_t size)
     void *current = head_ptr;
     int block_size = 0;
 
+    // printf("%p\n", current);
+    printf("%d\n", ((info_t *)current)->is_free);
     while (((info_t *)current)->is_free != 2) {
         if (((info_t *)current)->is_free == 1 &&
         size <= ((info_t *)current)->size) {
             ((info_t *)current)->is_free = 0;
-            return (current);
+            return (current + info_size);
         }
         // printf("%p\n", current);
         current += info_size + ((info_t *)current)->size;
         // printf("%p\n", current);
         // printf("NOT NULL\n");
-        // printf("%d\n", ((info_t *)current)->is_free);
+        printf("%d\n", ((info_t *)current)->is_free);
     }
     // printf("DECALE FINAL: %lu\n", current - head_ptr);
     while (size + info_size >= ((info_t *)current)->size) {
@@ -66,7 +70,8 @@ void    *browse_alloc(size_t size)
     create_info_block(&current, block_size == 0 ? getpagesize() : block_size);
     ((info_t *)current)->is_free = 2;
     // printf("%d\n", ((info_t *)current)->is_free);
-    return (current);
+    // printf("%p\n", current);
+    return (current - size);
 }
 
 void    *malloc(size_t size)
@@ -79,3 +84,9 @@ void    *malloc(size_t size)
     }
     return (browse_alloc(size));
 }
+
+// void    free(void *ptr)
+// {
+//     (void)ptr;
+//     return;
+// }
