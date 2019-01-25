@@ -25,10 +25,12 @@ NAMEDEV	=	malloc
 
 all:		$(NAME)
 
-$(NAME):	$(OBJ) # $(OBJDEV)
+$(NAME):	$(OBJ)
 		$(CC) -shared -o $(NAME) $(OBJ)
+
+dev:	$(OBJDEV)
 		# $(CC) $(CFLAGSDEV) $(OBJDEV) -o $(NAMEDEV) -ldl
-		# $(CC) $(CFLAGS) $(SRCDEV) -o $(NAMEDEV) -L./ -lmy_malloc
+		$(CC) $(CFLAGSDEV) $(SRCDEV) -o $(NAMEDEV) -L./ -lmy_malloc
 
 clean:
 		rm -f $(OBJ)

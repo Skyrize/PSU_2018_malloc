@@ -11,7 +11,7 @@
 #include <dlfcn.h>
 #include "malloc.h"
 
-const int info_size = sizeof(info_t);
+const size_t info_size = sizeof(info_t);
 
 void    *head_ptr = NULL;
 
@@ -118,12 +118,55 @@ void    *malloc(size_t size)
     return (browse_alloc(size));
 }
 
+void     free_shrink(void *ptr_free)
+{
+    void *current = ptr_free;
+    int nb_shrink = 0;
+
+    current += info_size + ((info_t *)current)->size;
+    while (((info_t *)current)->is_free != 2) {
+        if (((info_t *)current)->is_free == 0) {
+            ((info_t *)current)->is_free = 1;
+            write(1, "FREE - DO NOT SHRINK\n", 21);
+            return;
+        }
+        current += info_size + ((info_t *)current)->size;
+    }
+    nb_shrink = (current - ptr_free + ((info_t *)current)->size + info_size) / getpagesize();
+    if (nb_shrink > 0) {
+        write(1, "FREE - SHRINK : ", 16);
+        my_putnbr(nb_shrink);
+        write(1, "\n", 1);
+
+        sbrk(-nb_shrink);
+    }
+
+    write(1, "FREE - PTR FREE : ", 18);
+    my_putnbr(((info_t *)ptr_free)->size);
+    write(1, "\n", 1);
+    write(1, "FREE - ADD TO LAST : ", 21);
+    my_putnbr(((info_t *)current)->size + info_size - (getpagesize() * nb_shrink));
+    write(1, "\n", 1);
+
+    ((info_t *)ptr_free)->size += ((info_t *)current)->size + info_size - (getpagesize() * nb_shrink);
+    
+    write(1, "FREE - PTR FREE AFTER : ", 24);
+    my_putnbr(((info_t *)ptr_free)->size);
+    write(1, "\n", 1);
+
+    ((info_t *)ptr_free)->is_free = 2;
+    if (((info_t *)ptr_free)->size == -info_size)
+        head_ptr = NULL;
+}
+
 void    free(void *ptr)
 {
     void *current = head_ptr;
+
     while (((info_t *)current)->is_free != 2) {
         if (current + info_size == ptr) {
-            ((info_t *)current)->is_free = 1;
+            // write(1, "FREE\n", 5);
+            free_shrink(current);
             return;
         }
         current += info_size + ((info_t *)current)->size;
@@ -154,20 +197,23 @@ void    show_alloc_mem()
     void *first_ptr;
     void *second_ptr;
 
+    if (!head_ptr)
+        return;
     while (((info_t *)current)->is_free != 2)
         current += info_size + ((info_t *)current)->size;
     current += info_size + ((info_t *)current)->size;
-    write(1, "break : ", 9);
-    my_putnbr_base((unsigned long long)current, "0123456789ABCDEF");
+    write(1, "break : 0x", 11);
+    my_putnbr_base((unsigned long long)current, "0123456789abcdef");
     write(1, "\n", 1);
     current = head_ptr;
     while (((info_t *)current)->is_free != 2) {
         if (((info_t *)current)->is_free == 0) {
             first_ptr = current + info_size;
             second_ptr = current + info_size + ((info_t *)current)->size;
-            my_putnbr_base((unsigned long long)first_ptr, "0123456789ABCDEF");
-            write(1, " - ", 4);
-            my_putnbr_base((unsigned long long)second_ptr, "0123456789ABCDEF");
+            write(1, "0x", 2);
+            my_putnbr_base((unsigned long long)first_ptr, "0123456789abcdef");
+            write(1, " - 0x", 6);
+            my_putnbr_base((unsigned long long)second_ptr, "0123456789abcdef");
             write(1, " : ", 4);
             my_putnbr(((info_t *)current)->size);
             write(1, " bytes\n", 8);
