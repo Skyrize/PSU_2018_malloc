@@ -83,10 +83,12 @@ void    *browse_alloc(size_t size)
     int diff_head_break = 0;
     int save_block_size = 0;
 
+    my_putstr("MALLOC - NEXT BLOCK IS : ");
+    my_putnbr(((info_t *)current)->size);
+    my_putstr(" : ");
+    my_putnbr(((info_t *)current)->is_free);
+    my_putchar('\n');
     while (((info_t *)current)->is_free != 2) {
-        my_putstr("MALLOC - NEXT BLOCK IS : ");
-        my_putnbr(((info_t *)current)->size);
-        my_putchar('\n');
         if (((info_t *)current)->is_free == 1 &&
         size <= ((info_t *)current)->size) {
             save_block_size = ((info_t *)current)->size;
@@ -105,6 +107,11 @@ void    *browse_alloc(size_t size)
             return (current + info_size);
         }
         current += info_size + ((info_t *)current)->size;
+        my_putstr("MALLOC - NEXT BLOCK IS : ");
+        my_putnbr(((info_t *)current)->size);
+        my_putstr(" : ");
+        my_putnbr(((info_t *)current)->is_free);
+        my_putchar('\n');
     }
     while (size + info_size >= ((info_t *)current)->size) {
         if (!create_page())
@@ -146,7 +153,7 @@ void     free_shrink(void *ptr_free)
     current += info_size + ((info_t *)current)->size;
     while (((info_t *)current)->is_free != 2) {
         if (((info_t *)current)->is_free == 0) {
-            ((info_t *)current)->is_free = 1;
+            ((info_t *)ptr_free)->is_free = 1;
             // write(1, "FREE - DO NOT SHRINK\n", 21);
             return;
         }
