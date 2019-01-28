@@ -148,6 +148,10 @@ void    *malloc(size_t size)
 void     shrink(void *first_free, int total_freed)
 {
     if (total_freed < getpagesize()) {
+        if (total_freed == 0) {
+            head_ptr = NULL;
+            return;
+        }
         ((info_t *)first_free)->size = total_freed;
         ((info_t *)first_free)->is_free = 2;
         return;
