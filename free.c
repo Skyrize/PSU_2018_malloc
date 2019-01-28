@@ -37,6 +37,7 @@ void    free(void *ptr)
 
     if (ptr < head_ptr || ptr > sbrk(0))
         return;
+    pthread_mutex_lock(&mut);
     if (page_size == 0)
         page_size = getpagesize();
     while (((info_t *)current)->is_free != 2) {
@@ -60,14 +61,12 @@ void    free(void *ptr)
         }
         current += sizeof(info_t) + ((info_t *)current)->size;
     }
-    // my_putstr("TOTAL SIZE\n");
-    // my_putnbr(total_free);
-    // my_putstr("\n");
     if (first_free) {
         total_free += ((info_t *)current)->size + sizeof(info_t);
         if (total_free >= page_size)
             shrink(first_free, total_free, page_size);
     }
+    pthread_mutex_unlock(&mut);
 }
 
 // void     free_shrink(void *current, void *first_free, size_t page_size)

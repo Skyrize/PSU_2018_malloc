@@ -12,6 +12,7 @@
 #include <stdlib.h>
 
 void    *head_ptr;
+pthread_mutex_t mut;
 
 typedef struct info_s {
 	char	is_free;
