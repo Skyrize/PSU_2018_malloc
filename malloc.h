@@ -10,6 +10,7 @@
 
 #include <unistd.h>
 #include <stdlib.h>
+#include <pthread.h>
 
 void    *head_ptr;
 pthread_mutex_t mut;
