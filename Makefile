@@ -9,11 +9,18 @@ CC		=	gcc
 
 CFLAGS	=	-W -Wall -Wextra -c -fpic -g3
 
-CFLAGSDEV	= -W -Wall -Wextra -g3
+CFLAGSDEV	= -W -Wall -Wextra -g3 -lm
 
-SRC		=	malloc.c	\
+SRC		=	malloc.c			\
+			realloc.c			\
+			calloc.c			\
+			free.c				\
+			tools.c				\
+			lib.c				\
+			show_alloc_mem.c	\
 
 SRCDEV	=	main.c	\
+
 
 OBJ		=	$(SRC:.c=.o)
 
