@@ -145,60 +145,40 @@ void    *malloc(size_t size)
     return (browse_alloc(size));
 }
 
-void     free_shrink(void *ptr_free)
+void     shrink(void *first_free, int total_freed)
 {
-    void *current = ptr_free;
-    int nb_shrink = 0;
-
-    current += info_size + ((info_t *)current)->size;
-    while (((info_t *)current)->is_free != 2) {
-        if (((info_t *)current)->is_free == 0) {
-            ((info_t *)ptr_free)->is_free = 1;
-            // write(1, "FREE - DO NOT SHRINK\n", 21);
-            return;
-        }
-        current += info_size + ((info_t *)current)->size;
+    if (total_freed < getpagesize()) {
+        ((info_t *)first_free)->size = total_freed;
+        ((info_t *)first_free)->is_free = 2;
+        return;
     }
-    nb_shrink = (current - ptr_free + ((info_t *)current)->size + info_size) / getpagesize();
-    if (nb_shrink > 0) {
-        // write(1, "FREE - SHRINK : ", 16);
-        // my_putnbr(nb_shrink);
-        // write(1, "\n", 1);
-
-        sbrk(-nb_shrink);
-    }
-
-    // write(1, "FREE - PTR FREE : ", 18);
-    // my_putnbr(((info_t *)ptr_free)->size);
-    // write(1, "\n", 1);
-    // write(1, "FREE - ADD TO LAST : ", 21);
-    // my_putnbr(((info_t *)current)->size + info_size - (getpagesize() * nb_shrink));
-    // write(1, "\n", 1);
-
-    ((info_t *)ptr_free)->size += ((info_t *)current)->size + info_size - (getpagesize() * nb_shrink);
-    
-    // write(1, "FREE - PTR FREE AFTER : ", 24);
-    // my_putnbr(((info_t *)ptr_free)->size);
-    // write(1, "\n", 1);
-
-    ((info_t *)ptr_free)->is_free = 2;
-    if (((info_t *)ptr_free)->size == -info_size)
-        head_ptr = NULL;
+    sbrk(-getpagesize());
+    shrink(first_free, total_freed - getpagesize());
 }
 
 void    free(void *ptr)
 {
     void *current = head_ptr;
+    void *first_free = NULL;
+    int total_free = 0;
 
     while (((info_t *)current)->is_free != 2) {
         if (current + info_size == ptr) {
-            my_putstr("FREE\n\n");
-            free_shrink(current);
-            // show_alloc_mem();
-            my_putstr("\n\n");
-            return;
+            ((info_t *)current)->is_free = 1;
+        }
+        if (((info_t *)current)->is_free == 1) {
+            if (first_free == NULL) {
+                first_free = current;
+            }
+            total_free += ((info_t *)current)->size + sizeof(info_t);
+        } else {
+            first_free = NULL;
+            total_free = 0;
         }
         current += info_size + ((info_t *)current)->size;
+    }
+    if (first_free && total_free > getpagesize()) {
+        shrink(first_free, total_free);
     }
 }
 
