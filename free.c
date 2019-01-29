@@ -7,7 +7,7 @@
 
 #include "malloc.h"
 
-void     shrink(void *first_free, size_t total_freed, size_t page_size)
+void shrink(void *first_free, size_t total_freed, size_t page_size)
 {
     if (total_freed <= page_size) {
         ((info_t *)first_free)->size = total_freed;
@@ -18,7 +18,7 @@ void     shrink(void *first_free, size_t total_freed, size_t page_size)
     shrink(first_free, total_freed - page_size, page_size);
 }
 
-int     free_pointer(void * current)
+int free_pointer(void * current)
 {
     void *next = current + sizeof(info_t) + ((info_t *)current)->size;
     if (((info_t *)next)->is_free == 2) {
@@ -30,7 +30,7 @@ int     free_pointer(void * current)
     return (0);
 }
 
-size_t  update_first_free(void * current, void * first_free, size_t total_free)
+size_t update_first_free(void * current, void * first_free, size_t total_free)
 {
     if (((info_t *)current)->is_free == 1) {
         if (first_free == NULL)
@@ -41,7 +41,7 @@ size_t  update_first_free(void * current, void * first_free, size_t total_free)
     return (0);
 }
 
-void    check_shrink(void * current, void * first_free, size_t total_free,
+void check_shrink(void * current, void * first_free, size_t total_free,
 size_t page_size)
 {
     if (first_free) {
@@ -51,7 +51,7 @@ size_t page_size)
     }
 }
 
-void    free(void *ptr)
+void free(void *ptr)
 {
     static size_t page_size = 0;
     void *current = head_ptr;

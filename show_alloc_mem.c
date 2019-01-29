@@ -7,7 +7,7 @@
 
 #include "malloc.h"
 
-void    show_break(void *current)
+void show_break(void *current)
 {
     while (((info_t *)current)->is_free != 2)
         current += sizeof(info_t) + ((info_t *)current)->size;
@@ -17,7 +17,7 @@ void    show_break(void *current)
     my_putchar('\n');
 }
 
-void    show_alloc(void *current)
+void show_alloc(void *current)
 {
     void *first_ptr;
     void *second_ptr;
@@ -38,7 +38,7 @@ void    show_alloc(void *current)
     }
 }
 
-void    show_alloc_mem()
+void show_alloc_mem(void)
 {
     void *current = head_ptr;
 

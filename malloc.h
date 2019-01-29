@@ -6,29 +6,29 @@
 */
 
 #ifndef MALLOC_H_
-	#define MALLOC_H_
+#define MALLOC_H_
 
 #include <unistd.h>
 #include <stdlib.h>
 #include <pthread.h>
 
-void    *head_ptr;
+void *head_ptr;
 pthread_mutex_t mut;
 
 typedef struct info_s {
-	char	is_free;
-	size_t	size;
+    char is_free;
+    size_t size;
 } __attribute__((packed)) info_t;
 
-void	my_putchar(char c);
-void	my_putstr(char *str);
-int		my_putnbr(int nb);
-int 	my_strlen(char *base);
-void 	my_putnbr_base(unsigned long long nb, char *base);
+void my_putchar(char c);
+void my_putstr(char *str);
+int my_putnbr(int nb);
+int my_strlen(char *base);
+void my_putnbr_base(unsigned long long nb, char *base);
 
-void    *create_page(size_t page_size);
-void    create_info_block(void * *ptr, size_t size);
+void *create_page(size_t page_size);
+void create_info_block(void * *ptr, size_t size);
 
-void    show_alloc_mem();
+void show_alloc_mem();
 
 #endif /* !MALLOC_H_ */
